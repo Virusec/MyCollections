@@ -5,6 +5,7 @@
 public class Main {
     public static void main(String[] args) {
         MyArrayList<Integer> numbs = new MyArrayList<>();
+        System.out.println(numbs);
         numbs.add(1);
         numbs.add(1);
         numbs.add(7);
@@ -22,6 +23,7 @@ public class Main {
         System.out.println("-".repeat(40));
 
         MyLinkedList<String> myLinkedList = new MyLinkedList<>();
+        System.out.println(myLinkedList);
         myLinkedList.add("Яблоки");
         myLinkedList.add("Вишня");
         myLinkedList.add("Вишня");

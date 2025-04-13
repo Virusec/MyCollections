@@ -1,5 +1,5 @@
 /**
- * Класс MyLinkedList представляет собой собственную реализацию односвязного списка.
+ * Класс MyLinkedList представляет собой собственную реализацию связанного списка.
  * В нём реализованы методы для добавления, удаления, получения, замены элементов,
  * создания подсписка и определения текущего размера списка.
  *
@@ -58,7 +58,8 @@ public class MyLinkedList<T> {
     }
 
     /**
-     * Добавляет указанный элемент в конец списка.
+     * Если список пуст, новый узел становится головой и хвостом.
+     * В противном случае добавляет указанный элемент в конец списка и обновляем хвост.
      *
      * @param element элемент, который необходимо добавить.
      * @return true после успешного добавления элемента.
@@ -66,11 +67,9 @@ public class MyLinkedList<T> {
     public boolean add(T element) {
         Node<T> newNode = new Node<>(element);
         if (head == null) {
-            // Если список пуст, новый узел становится головой и хвостом.
             head = newNode;
             tail = newNode;
         } else {
-            // Добавляем в конец списка и обновляем хвост.
             tail.next = newNode;
             tail = newNode;
         }
@@ -97,7 +96,7 @@ public class MyLinkedList<T> {
     /**
      * Заменяет элемент по указанному индексу новым значением и возвращает старое значение.
      *
-     * @param index индекс элемента, который необходимо заменить.
+     * @param index   индекс элемента, который необходимо заменить.
      * @param element новый элемент, который будет установлен по данному индексу.
      * @return старый элемент, ранее находившийся по заданному индексу.
      * @throws IndexOutOfBoundsException если индекс выходит за пределы диапазона(index < 0 || index >= size()).
@@ -115,7 +114,7 @@ public class MyLinkedList<T> {
 
     /**
      * Удаляет элемент, расположенный по указанному индексу, и возвращает его.
-     * При удалении элемента производится сдвиг ссылок, чтобы список оставался связным.
+     * При удалении элемента производится сдвиг ссылок, чтобы список оставался связанным.
      *
      * @param index индекс элемента, который требуется удалить.
      * @return удалённый элемент.
@@ -125,25 +124,20 @@ public class MyLinkedList<T> {
         checkIndex(index);
         T removedData;
         if (index == 0) {
-            // Удаление первого элемента.
             removedData = head.data;
             head = head.next;
             if (head == null) {
-                // Если после удаления список оказался пуст, обновляем хвост.
                 tail = null;
             }
         } else {
-            // Находим узел, предшествующий удаляемому.
             Node<T> prev = head;
             for (int i = 0; i < index - 1; i++) {
                 prev = prev.next;
             }
             Node<T> toRemove = prev.next;
             removedData = toRemove.data;
-            // Связываем предыдущий узел с узлом после удаляемого.
             prev.next = toRemove.next;
             if (toRemove == tail) {
-                // Если удалённый узел был хвостом, обновляем хвост.
                 tail = prev;
             }
         }
@@ -161,11 +155,13 @@ public class MyLinkedList<T> {
     }
 
     /**
-     * Возвращает подсписок элементов, находящихся в диапазоне от fromIndex (включительно)
+     * Пропускает первые fromIndex узлов.
+     * Добавляет в новый список узлы от fromIndex до toIndex (не включительно).
+     * Возвращает новый список элементов, находящихся в диапазоне от fromIndex (включительно)
      * до toIndex (не включительно).
      *
      * @param fromIndex индекс начала подсписка (включительно).
-     * @param toIndex индекс конца подсписка (не включительно).
+     * @param toIndex   индекс конца подсписка (не включительно).
      * @return новый экземпляр MyLinkedList, содержащий элементы из указанного диапазона.
      * @throws IndexOutOfBoundsException если fromIndex или toIndex выходят за пределы списка,
      *                                   или если fromIndex больше toIndex.
@@ -176,11 +172,9 @@ public class MyLinkedList<T> {
         }
         MyLinkedList<T> subList = new MyLinkedList<>();
         Node<T> current = head;
-        // Пропускаем первые fromIndex узлов
         for (int i = 0; i < fromIndex; i++) {
             current = current.next;
         }
-        // Добавляем в новый список узлы от fromIndex до toIndex - 1
         for (int i = fromIndex; i < toIndex; i++) {
             subList.add(current.data);
             current = current.next;

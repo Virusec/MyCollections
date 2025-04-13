@@ -88,7 +88,7 @@ public class MyArrayList<T> {
 
     /**
      * Удаляет элемент по указанному индексу и возвращает его.
-     * Все элементы после удаляемого сдвигаются влево.
+     * Все элементы после удаляемого сдвигаются влево на место удаленного элемента.
      *
      * @param index индекс удаляемого элемента.
      * @return удалённый элемент.
@@ -98,11 +98,9 @@ public class MyArrayList<T> {
     public T remove(int index) {
         checkIndex(index);
         T removedElement = (T) elements[index];
-        // Сдвигаем все элементы, начиная со следующего, на одну позицию влево
         for (int i = index; i < size - 1; i++) {
             elements[i] = elements[i + 1];
         }
-        // Освобождаем последнюю позицию
         elements[size - 1] = null;
         size--;
         return removedElement;
@@ -118,12 +116,12 @@ public class MyArrayList<T> {
     }
 
     /**
-     * Возвращает новую коллекцию содержащую элементы в диапазоне [fromIndex, toIndex).
+     * Возвращает новый список содержащую элементы в диапазоне [fromIndex, toIndex).
      *
      * @param fromIndex индекс начала диапазона (включительно).
      * @param toIndex   индекс конца диапазона (не включительно).
      * @return новый MyArrayList с элементами из указанного диапазона.
-     * @throws IndexOutOfBoundsException если fromIndex или toIndex выходят за пределы массива или fromIndex > toIndex
+     * @throws IndexOutOfBoundsException если fromIndex или toIndex выходят за пределы списка или fromIndex > toIndex
      *                                   (fromIndex < 0 || toIndex > size || fromIndex > toIndex).
      */
     public MyArrayList<T> subList(int fromIndex, int toIndex) {
@@ -138,7 +136,7 @@ public class MyArrayList<T> {
     }
 
     /**
-     * Проверяет, что указанный индекс находится в границах массива от 0 до size
+     * Проверяет, что указанный индекс находится в границах списка от 0 до size
      *
      * @param index индекс проверяемого элемента.
      * @throws IndexOutOfBoundsException если индекс выходит за пределы диапазона(index < 0 || index >= size())..
