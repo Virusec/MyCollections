@@ -1,5 +1,5 @@
 /**
- * Класс MyLinkedList представляет собой собственную реализацию связанного списка.
+ * Класс MyLinkedList представляет собой собственную реализацию дву-связанного списка.
  * В нём реализованы методы для добавления, удаления, получения, замены элементов,
  * создания подсписка и определения текущего размера списка.
  *
@@ -8,8 +8,8 @@
  */
 public class MyLinkedList<T> {
     /**
-     * Внутренний класс Node представляет собой узел списка,
-     * содержащий данные и ссылку на следующий элемент.
+     * Внутренний класс Node представляет собой узел дву-связанного списка,
+     * содержащий данные и ссылку на следующий и предыдущий элемент.
      *
      * @param <T> Тип данных, хранимых в узле.
      */
@@ -22,6 +22,10 @@ public class MyLinkedList<T> {
          * Ссылка на следующий узел списка.
          */
         Node<T> next;
+        /**
+         * Ссылка на предыдущий узел списка.
+         */
+        Node<T> prev;
 
         /**
          * Конструктор узла.
@@ -31,6 +35,7 @@ public class MyLinkedList<T> {
         Node(T data) {
             this.data = data;
             this.next = null;
+            this.prev = null;
         }
     }
 
@@ -49,7 +54,7 @@ public class MyLinkedList<T> {
 
     /**
      * Конструктор по умолчанию.
-     * Инициализирует пустой список.
+     * Инициализирует пустой двусвязный список.
      */
     public MyLinkedList() {
         this.head = null;
@@ -71,6 +76,7 @@ public class MyLinkedList<T> {
             tail = newNode;
         } else {
             tail.next = newNode;
+            newNode.prev = tail;
             tail = newNode;
         }
         size++;
@@ -85,11 +91,7 @@ public class MyLinkedList<T> {
      * @throws IndexOutOfBoundsException если индекс выходит за пределы диапазона(index < 0 || index >= size()).
      */
     public T get(int index) {
-        checkIndex(index);
-        Node<T> current = head;
-        for (int i = 0; i < index; i++) {
-            current = current.next;
-        }
+        Node<T> current = getNodeAt(index);
         return current.data;
     }
 
@@ -102,11 +104,7 @@ public class MyLinkedList<T> {
      * @throws IndexOutOfBoundsException если индекс выходит за пределы диапазона(index < 0 || index >= size()).
      */
     public T set(int index, T element) {
-        checkIndex(index);
-        Node<T> current = head;
-        for (int i = 0; i < index; i++) {
-            current = current.next;
-        }
+        Node<T> current = getNodeAt(index);
         T oldData = current.data;
         current.data = element;
         return oldData;
@@ -114,32 +112,27 @@ public class MyLinkedList<T> {
 
     /**
      * Удаляет элемент, расположенный по указанному индексу, и возвращает его.
-     * При удалении элемента производится сдвиг ссылок, чтобы список оставался связанным.
+     * При удалении элемента производится сдвиг ссылок, чтобы список оставался связанным,
+     * корректируются ссылки предыдущего и следующего узлов.
      *
      * @param index индекс элемента, который требуется удалить.
      * @return удалённый элемент.
      * @throws IndexOutOfBoundsException если индекс меньше 0 или больше/равен размеру списка.
      */
     public T remove(int index) {
-        checkIndex(index);
-        T removedData;
-        if (index == 0) {
-            removedData = head.data;
-            head = head.next;
-            if (head == null) {
-                tail = null;
-            }
+        Node<T> node = getNodeAt(index);
+        T removedData = node.data;
+
+        if (node.prev != null) {
+            node.prev.next = node.next;
         } else {
-            Node<T> prev = head;
-            for (int i = 0; i < index - 1; i++) {
-                prev = prev.next;
-            }
-            Node<T> toRemove = prev.next;
-            removedData = toRemove.data;
-            prev.next = toRemove.next;
-            if (toRemove == tail) {
-                tail = prev;
-            }
+            head = node.next;
+        }
+
+        if (node.next != null) {
+            node.next.prev = node.prev;
+        } else {
+            tail = node.prev;
         }
         size--;
         return removedData;
@@ -171,10 +164,7 @@ public class MyLinkedList<T> {
             throw new IndexOutOfBoundsException("fromIndex: " + fromIndex + ", toIndex: " + toIndex);
         }
         MyLinkedList<T> subList = new MyLinkedList<>();
-        Node<T> current = head;
-        for (int i = 0; i < fromIndex; i++) {
-            current = current.next;
-        }
+        Node<T> current = getNodeAt(fromIndex);
         for (int i = fromIndex; i < toIndex; i++) {
             subList.add(current.data);
             current = current.next;
@@ -212,5 +202,33 @@ public class MyLinkedList<T> {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
         }
+    }
+
+    /**
+     * Вспомогательный метод для получения узла по указанному индексу.
+     * Для повышения эффективности осуществляется выбор направления обхода:
+     * от головы или от хвоста.
+     * Если индекс в первой половине списка, начинаем обход с головы,
+     * иначе, начинаем обход с хвоста
+     *
+     * @param index индекс искомого узла.
+     * @return узел, расположенный по заданному индексу.
+     * @throws IndexOutOfBoundsException если индекс меньше 0 или больше/равен размеру списка.
+     */
+    private Node<T> getNodeAt(int index) {
+        checkIndex(index);
+        Node<T> current;
+        if (index < size / 2) {
+            current = head;
+            for (int i = 0; i < index; i++) {
+                current = current.next;
+            }
+        } else {
+            current = tail;
+            for (int i = size - 1; i > index; i--) {
+                current = current.prev;
+            }
+        }
+        return current;
     }
 }
